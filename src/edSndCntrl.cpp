@@ -63,10 +63,13 @@ clock_t starttime;
   uint16_t imuResult = imu->begin();
   // ******************************************************************************************
   // either run individual changes here or add a call to begin()
+  // ******************************************************************************************
 // SET ODR ETC HERE
  imu->setAccelODR(imu->A_ODR_1600);
  imu->setAccelScale(imu->A_SCALE_2G);
 //imu->setGyroScale(imu->G_SCALE_245DPS);
+
+ // ******************************************************************************************
 
   cout<<hex<<"Chip ID: 0x"<<imuResult<<dec<<" (should be 0x49d4)"<<endl;
 
@@ -74,12 +77,16 @@ clock_t starttime;
   bool newMagData = false;
   bool newGyroData = false;
   bool overflow = false;
-  const int PORT_NUM = 57121;
+
+  // this is not fixed. can we retrieve it from SC?
+
+  const int PORT_NUM = 57120;
  // ************************************************************************************
 	// make a socket
 oscpkt::UdpSocket sock;
 // connect it
-sock.connectTo("192.168.1.8", PORT_NUM);
+// similarly the ip address here
+sock.connectTo("192.168.1.6", PORT_NUM);
 // if you fail to make a socket then report the fact
 if (!sock.isOk()) {
   cerr << "Error connection to port " << PORT_NUM << ": " << sock.errorMessage() << "\n";
@@ -184,7 +191,7 @@ else
    // oscpkt::Message msg("Gyroz"); msg.pushInt32(imu->gz);
 
    // X AXIS
-    oscpkt::Message msg("/Accelx"); msg.pushInt32(imu->ax);
+    oscpkt::Message msg("/Accelx"); msg.pushFloat(imu->calcAccel(imu->ax));
     oscpkt::PacketWriter pw;
           // add messages to an osc bundle
           //pw.startBundle().startBundle().addMessage(msg).endBundle().endBundle();
